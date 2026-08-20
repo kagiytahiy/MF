@@ -5,7 +5,47 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>磁力探險互動學習單 - 1-1 磁力的探討</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
+<script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, onSnapshot, collection, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // ==========================================
+        // ⚠️ 請把您在主網站 (test.html) 裡的那組 Firebase 設定貼在這裡！
+        // ==========================================
+        const myFirebaseConfig = {
+           apiKey: "AIzaSyCtKoWlOjDcQM8p1LxgDWPi_YDQcQR3O4g",
+  authDomain: "klapay-qmayah.firebaseapp.com",
+  projectId: "klapay-qmayah",
+  storageBucket: "klapay-qmayah.firebasestorage.app",
+  messagingSenderId: "536692376017",
+  appId: "1:536692376017:web:6a329ed309fb0925dc20f0",
+  measurementId: "G-EL2YT8TM9J"
+        };
+
+        const firebaseConfig = typeof __firebase_config !== 'undefined' 
+            ? JSON.parse(__firebase_config) 
+            : myFirebaseConfig;
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'kagiy-yawiy-magnet-app';
+
+        window.isFirebaseReady = false;
+        window.dbInstance = null;
+        window.authInstance = null;
+
+        if (Object.keys(firebaseConfig).length > 0 && firebaseConfig.apiKey) {
+            try {
+                const app = initializeApp(firebaseConfig);
+                window.authInstance = getAuth(app);
+                window.dbInstance = getFirestore(app);
+                window.isFirebaseReady = true;
+            } catch(e) {
+                console.error("Firebase Init Error:", e);
+            }
+        }
+    </script>  
+
+<style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap');
         body {
             font-family: 'Noto Sans TC', sans-serif;
