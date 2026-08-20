@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>磁力探險互動學習單 - 1-1 磁力的探討</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap');
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f0fdf4;
+            background-image: radial-gradient(#bbf7d0 2px, transparent 2px);
+            background-size: 30px 30px;
+            user-select: none;
+            overflow-x: hidden;
+            touch-action: manipulation;
+        }
+        .animate-bounce-slow { animation: bounce 3s infinite; }
+        .hidden-screen { display: none !important; }
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* 垂直滑桿 (上方100頁，下方1頁) */
+        .vertical-slider-container {
+            position: relative;
+            height: 220px;
+            width: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .vertical-slider {
+            transform: rotate(90deg);
+            width: 220px;
+            height: 10px;
+            cursor: pointer;
+            -webkit-appearance: none;
+            background: #cbd5e1;
+            border-radius: 5px;
+            outline: none;
+        }
+        .vertical-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #3b82f6;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            border: 3px solid white;
+        }
+
+        /* 3D 金牌徽章陰影特效 */
+        .badge-3d {
+            filter: drop-shadow(0 20px 25px rgba(0,0,0,0.5)) drop-shadow(0 0 20px rgba(255,215,0,0.8));
+            transform: scale(1.15);
+        }
+
+        /* 旮毅亞偉老師專屬紅印章 */
+        .stamp {
+            font-family: 'Kaiti', '標楷體', serif;
+            color: #dc2626;
+            border: 6px solid #dc2626;
+            border-radius: 12px;
+            padding: 10px 18px;
+            font-weight: 900;
+            font-size: 2rem;
+            transform: rotate(-12deg);
+            opacity: 0.9;
+            text-align: center;
+            line-height: 1.2;
+            letter-spacing: 4px;
+            box-shadow: inset 0 0 6px rgba(220,38,38,0.4), 3px 3px 8px rgba(0,0,0,0.3);
+            text-shadow: 1px 1px 2px rgba(220,38,38,0.6);
+            background-color: transparent;
+        }
+
+        /* 自定義彈跳視窗 */
+        .custom-modal {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 99999;
+            display: flex; align-items: center; justify-content: center; animation: fadeIn 0.3s ease;
+        }
+
+        /* 金黃色跑動磁力線樣式 */
+        .magnetic-line {
+            fill: none;
+            stroke: #fbbf24;
+            stroke-width: 2.5;
+            stroke-dasharray: 6 6;
+            animation: flowMagneticLines 1.2s linear infinite;
+            transition: opacity 0.3s ease;
+        }
+        @keyframes flowMagneticLines {
+            from { stroke-dashoffset: 24; }
+            to { stroke-dashoffset: 0; }
+        }
+
+        /* 嚴格 A4 橫向列印設定 (確保單張滿版) */
+        @media print {
+            @page { size: A4 landscape; margin: 0; }
+            body, html { width: 100%; height: 100%; margin: 0; padding: 0; background-color: white !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            
+            #main-header, #teacher-dialog, #screen-login, #screen-start, #screen-task1, #screen-task2, #screen-waiting, #screen-teacher-praise, #screen-teacher, .no-print {
+                display: none !important;
+            }
+            
+            main { padding: 0 !important; margin: 0 !important; border: none !important; background: transparent !important; box-shadow: none !important; max-width: none !important; width: 100% !important; height: 100% !important; }
+            
+            #screen-certificate { 
+                display: flex !important; 
+                position: fixed !important; 
+                left: 0; top: 0; 
+                width: 100vw !important; 
+                height: 100vh !important; 
+                margin: 0 !important; padding: 0 !important;
+                box-sizing: border-box !important;
+                background-color: white !important;
+                z-index: 999999 !important;
+                align-items: center !important;
+                justify-content: center !important;
+            }
+            .cert-inner {
+                width: 280mm !important;
+                height: 195mm !important;
+                border: 12px solid #d97706 !important;
+                outline: 3px solid #f59e0b !important;
+                outline-offset: -8px !important;
+                padding: 30px !important;
+                box-sizing: border-box !important;
+                background-image: linear-gradient(rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.65)), url('providence.jpg') !important;
+                background-size: cover !important;
+                background-position: center !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                justify-content: center !important;
+                position: relative !important;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-4">
+
+    <div id="custom-modal-container"></div>
+
+    <header id="main-header" class="w-full max-w-4xl bg-white/90 backdrop-blur rounded-3xl shadow-lg p-4 mb-6 flex items-center justify-between border-4 border-green-400 z-10 no-print">
+        <div class="flex items-center gap-3">
+            <span class="text-4xl">🧲</span>
+            <h1 class="text-2xl md:text-3xl font-black text-green-700 tracking-wider">磁力探險隊</h1>
+        </div>
+        <div id="header-user-info" class="bg-green-100 text-green-800 px-4 py-2 rounded-full font-bold shadow-inner">
+            單元 1-1 磁力的探討
+        </div>
+    </header>
+
+    <main class="w-full max-w-4xl flex-grow flex flex-col relative">
+        
+        <div id="teacher-dialog" class="absolute -top-6 left-4 md:-left-12 z-20 fade-in hidden-screen no-print">
+            <div class="relative bg-white border-4 border-blue-400 p-4 rounded-3xl shadow-xl max-w-xs md:max-w-sm">
+                <div class="absolute -bottom-4 left-8 w-6 h-6 bg-white border-b-4 border-r-4 border-blue-400 transform rotate-45"></div>
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="w-12 h-12 bg-blue-500 text-white rounded-full flex items-center justify-center text-xl font-bold shadow-inner">旮</div>
+                    <span class="font-bold text-blue-800">旮毅亞偉老師：</span>
+                </div>
+                <p id="teacher-text" class="text-gray-700 font-medium leading-relaxed">提示訊息</p>
+            </div>
+        </div>
+
+        <div id="screen-login" class="w-full bg-white rounded-3xl shadow-2xl overflow-hidden border-4 border-blue-200 fade-in flex-grow flex flex-col items-center justify-center p-8">
+            <h2 class="text-3xl md:text-4xl font-black text-blue-800 mb-8">請選擇你的身分</h2>
+            
+            <div class="flex flex-col md:flex-row gap-8 w-full max-w-2xl">
+                <!-- 學生登入區 (三甲, 1-10號) -->
+                <div class="flex-1 bg-blue-50 p-6 rounded-2xl border-2 border-blue-200 flex flex-col items-center">
+                    <img src="student_login.jpg" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" alt="學生登入" class="w-24 h-24 rounded-full object-cover mb-4 border-4 border-blue-300 shadow">
+                    <div class="text-6xl mb-4" style="display:none;">👦👧</div>
+                    
+                    <h3 class="text-2xl font-bold text-blue-700 mb-2">我是學生 (三年甲班)</h3>
+                    <p class="text-xs text-stone-500 mb-4">請點選您的座號與姓名</p>
+                    
+                    <select id="stu-select" class="w-full mb-6 p-3 rounded-xl border border-gray-300 text-lg bg-white font-bold text-gray-800 outline-none focus:ring-4 focus:ring-blue-300">
+                        <option value="">-- 請選擇座號與姓名 --</option>
+                        <option value="1|哆拉美">1號 哆拉美</option>
+                        <option value="2|林胖虎">2號 林胖虎</option>
+                        <option value="3|陳大雄">3號 陳大雄</option>
+                        <option value="4|曾美麗">4號 曾美麗</option>
+                        <option value="5|宋小夫">5號 宋小夫</option>
+                        <option value="6|白達利">6號 白達利</option>
+                        <option value="7|黃莎韻">7號 黃莎韻</option>
+                        <option value="8|張尤用">8號 張尤用</option>
+                        <option value="9|周恩">9號 周恩</option>
+                        <option value="10|田靜香">10號 田靜香</option>
+                    </select>
+
+                    <button onclick="loginStudent()" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 rounded-xl shadow-lg transition-colors text-xl">開始作答</button>
+                </div>
+
+                <div class="flex-1 bg-green-50 p-6 rounded-2xl border-2 border-green-200 flex flex-col items-center">
+                    <img src="teacher_login.jpg" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" alt="老師登入" class="w-24 h-24 rounded-full object-cover mb-4 border-4 border-green-300 shadow">
+                    <div class="text-6xl mb-4" style="display:none;">🧑‍🏫</div>
+
+                    <h3 class="text-2xl font-bold text-green-700 mb-2">測驗Live (老師)</h3>
+                    <p class="text-xs text-stone-500 mb-4">即時監控後台與證書發放</p>
+                    
+                    <input type="password" id="teacher-pwd" placeholder="請輸入老師密碼" onkeyup="if(event.key === 'Enter') loginTeacher()" class="w-full mb-6 p-3 rounded-xl border border-gray-300 text-lg bg-white font-bold text-center outline-none focus:ring-4 focus:ring-green-300">
+
+                    <button onclick="loginTeacher()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl shadow-lg transition-colors text-xl">進入測驗Live</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="screen-start" class="w-full bg-white rounded-3xl shadow-2xl overflow-hidden border-4 border-blue-200 fade-in hidden-screen flex-grow flex flex-col items-center justify-center p-8 text-center">
+            <img id="student-avatar" src="" onerror="this.src='https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80'" alt="學生照片" class="w-36 h-36 rounded-full object-cover shadow-2xl mb-6 border-4 border-blue-400">
+            
+            <h2 class="text-4xl font-black text-blue-800 mb-4">準備好拿「磁力大師」勳章了嗎？</h2>
+            <p class="text-xl text-gray-600 mb-8 max-w-2xl">
+                我們已經知道磁鐵可以吸引鐵製品，還能隔空、隔物發揮威力。<br>現在，請動動手指，完成兩大關卡挑戰！
+            </p>
+            <button onclick="startGame()" class="bg-gradient-to-b from-blue-400 to-blue-600 text-white text-3xl font-black py-4 px-12 rounded-full shadow-[0_8px_0_#1e3a8a] active:shadow-[0_0px_0_#1e3a8a] active:translate-y-2 transition-all">
+                開始挑戰！ 🚀
+            </button>
+        </div>
+
+        <div id="screen-task1" class="w-full bg-white rounded-3xl shadow-2xl border-4 border-orange-300 fade-in hidden-screen flex-grow flex flex-col p-6">
+            <div class="text-center mb-6">
+                <span class="inline-block bg-orange-100 text-orange-800 text-sm px-3 py-1 rounded-full font-bold mb-2">數位關卡 1</span>
+                <h2 class="text-3xl font-black text-orange-600">材質分類大考驗</h2>
+                <p class="text-gray-600 text-lg">判斷畫面上的物品，有沒有含「鐵」？</p>
+            </div>
+            
+            <div class="flex-grow flex flex-col items-center justify-center bg-orange-50 rounded-2xl p-6 relative">
+                <div id="current-item-box" class="w-96 h-96 bg-white border-4 border-orange-400 rounded-3xl shadow-lg flex flex-col items-center justify-center mb-8 transform transition-transform duration-300 overflow-hidden">
+                    <img id="item-image" src="" alt="物品" class="w-full h-80 object-cover border-b-2 border-gray-100">
+                    <div class="h-16 w-full flex items-center justify-center bg-gray-50">
+                        <span id="item-name" class="font-bold text-2xl text-gray-800">物品名稱</span>
+                    </div>
+                </div>
+                
+                <div class="flex gap-4 md:gap-8 w-full max-w-lg">
+                    <button onclick="checkMaterial(true)" class="flex-1 bg-green-100 hover:bg-green-200 border-4 border-green-500 rounded-2xl p-4 flex flex-col items-center transition-transform hover:scale-105 active:scale-95 shadow-md">
+                        <span class="text-4xl mb-2">🧲✅</span>
+                        <span class="font-bold text-green-700 text-lg md:text-xl">會被吸引<br><span class="text-sm">(鐵製品)</span></span>
+                    </button>
+                    <button onclick="checkMaterial(false)" class="flex-1 bg-gray-200 hover:bg-gray-300 border-4 border-gray-400 rounded-2xl p-4 flex flex-col items-center transition-transform hover:scale-105 active:scale-95 shadow-md">
+                        <span class="text-4xl mb-2">✖️❌</span>
+                        <span class="font-bold text-gray-700 text-lg md:text-xl">不會吸引<br><span class="text-sm">(非鐵製品)</span></span>
+                    </button>
+                </div>
+
+                <div class="w-full max-w-lg bg-gray-200 rounded-full h-4 mt-8">
+                    <div id="task1-progress" class="bg-orange-500 h-4 rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="screen-task2" class="w-full bg-[#fcfaf2] rounded-3xl shadow-2xl border-4 border-[#8b5a2b]/20 fade-in hidden-screen flex-grow flex flex-col p-6">
+            <div class="text-center mb-6">
+                <h2 class="text-3xl font-black text-[#5c3a21]">數位關卡 2：磁力穿透模擬器</h2>
+                <p class="text-white bg-[#6ba4d8] inline-block px-4 py-1.5 rounded-full font-bold mt-2 shadow-sm">拖拉滑桿，模擬隔著薄紙與厚書的實驗！</p>
+            </div>
+            
+            <div class="flex-grow flex flex-col md:flex-row items-center justify-center gap-8 bg-white/80 py-8 px-6 rounded-2xl border border-gray-200">
+                
+                <!-- 左側：3D 立體高擬真模擬器與黃金磁力線 -->
+                <div class="w-72 h-[380px] bg-gradient-to-b from-slate-800 via-slate-900 to-slate-950 border-[6px] border-slate-600 rounded-2xl relative flex flex-col items-center pt-5 shadow-2xl overflow-hidden shrink-0">
+                    <div class="absolute inset-0 shadow-[inset_0_20px_30px_rgba(0,0,0,0.7)] pointer-events-none rounded-xl"></div>
+                    
+                    <!-- 金黃色跑動磁力線 SVG 層 (隨頁數變厚而漸漸減弱，36頁以上消失) -->
+                    <svg id="magnetic-field-svg" class="absolute inset-0 w-full h-full pointer-events-none z-10" viewBox="0 0 300 400">
+                        <path class="magnetic-line" d="M 100,75 C 30,125 30,225 100,275" />
+                        <path class="magnetic-line" d="M 80,75 C 10,135 10,235 80,295" />
+                        <path class="magnetic-line" d="M 200,75 C 270,125 270,225 200,275" />
+                        <path class="magnetic-line" d="M 220,75 C 290,135 290,235 220,295" />
+                    </svg>
+
+                    <!-- 3D 立體高光金屬磁鐵 -->
+                    <div class="flex w-48 h-14 rounded-xl shadow-[0_15px_25px_rgba(0,0,0,0.6)] z-20 overflow-hidden border-2 border-slate-900 relative" style="transform: perspective(600px) rotateX(15deg); background: linear-gradient(to bottom, rgba(255,255,255,0.4), transparent);">
+                        <div class="w-1/2 bg-gradient-to-b from-red-500 via-red-600 to-red-800 text-white flex justify-center items-center font-black text-2xl shadow-[inset_0_3px_6px_rgba(255,255,255,0.7)] border-r border-slate-900">N</div>
+                        <div class="w-1/2 bg-gradient-to-b from-blue-400 via-blue-600 to-blue-800 text-white flex justify-center items-center font-black text-2xl shadow-[inset_0_3px_6px_rgba(255,255,255,0.7)]">S</div>
+                        <div class="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/30 to-transparent pointer-events-none"></div>
+                    </div>
+
+                    <!-- 疊紙特效區 -->
+                    <div class="relative mt-3 z-10 flex flex-col items-center w-60" style="height: 190px">
+                        <div id="sim-paper" class="bg-white w-full absolute top-0 transition-all duration-75 ease-out rounded-[3px]"
+                            style="height: 10px; background-image: linear-gradient(to right, #f8fafc, #ffffff, #e2e8f0); box-shadow: 0 10px 20px rgba(0,0,0,0.4), inset 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #cbd5e1">
+                        </div>
+                    </div>
+
+                    <!-- 擬真金屬迴紋針 (精準定位於紙張下方) -->
+                    <div id="sim-clips" class="absolute w-full flex justify-center gap-12 transition-all duration-75 z-20" style="top: 95px;">
+                        <div id="clip1" class="transform -rotate-45 transition-all duration-300 filter drop-shadow-[0_6px_8px_rgba(0,0,0,0.6)]">
+                            <svg width="32" height="64" viewBox="0 0 40 80">
+                                <defs>
+                                    <linearGradient id="metalGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#ffffff"/>
+                                        <stop offset="35%" stop-color="#cbd5e1"/>
+                                        <stop offset="70%" stop-color="#64748b"/>
+                                        <stop offset="100%" stop-color="#1e293b"/>
+                                    </linearGradient>
+                                </defs>
+                                <path d="M12,4 C6,4 3,9 3,17 L3,63 C3,71 8,75 14,75 C20,75 23,70 23,63 L23,18 C23,13 20,10 17,10 C14,10 12,13 12,18 L12,60 C12,64 14,66 17,66 C20,66 21,64 21,60 L21,22" fill="none" stroke="url(#metalGrad1)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <div id="clip2" class="transform rotate-12 transition-all duration-300 filter drop-shadow-[0_6px_8px_rgba(0,0,0,0.6)]">
+                            <svg width="32" height="64" viewBox="0 0 40 80">
+                                <defs>
+                                    <linearGradient id="metalGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#ffffff"/>
+                                        <stop offset="35%" stop-color="#cbd5e1"/>
+                                        <stop offset="70%" stop-color="#64748b"/>
+                                        <stop offset="100%" stop-color="#1e293b"/>
+                                    </linearGradient>
+                                </defs>
+                                <path d="M12,4 C6,4 3,9 3,17 L3,63 C3,71 8,75 14,75 C20,75 23,70 23,63 L23,18 C23,13 20,10 17,10 C14,10 12,13 12,18 L12,60 C12,64 14,66 17,66 C20,66 21,64 21,60 L21,22" fill="none" stroke="url(#metalGrad2)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右側：控制區與答題區 (上方100頁，下方1頁) -->
+                <div class="flex flex-col gap-6 w-full max-w-sm">
+                    <div class="flex items-center gap-6 bg-gray-50 p-6 rounded-2xl border border-gray-200 shadow-sm w-full">
+                        <div class="flex flex-col h-[220px] justify-between py-2 font-black text-gray-700 text-right">
+                             <span class="whitespace-nowrap">1頁</span>
+                             <span class="whitespace-nowrap">100頁</span>
+                        </div>
+                        <div class="vertical-slider-container">
+                            <input type="range" min="1" max="100" value="1" id="thickness-slider" class="vertical-slider" oninput="updateSim()">
+                        </div>
+                        <div class="flex-grow">
+                            <div class="bg-white border-2 border-blue-200 rounded-2xl p-4 shadow-md relative">
+                                <div class="absolute -left-4 top-4 text-3xl drop-shadow-md">❓</div>
+                                <p class="font-bold text-gray-800 text-sm leading-relaxed pl-4">
+                                    <span class="text-amber-500 text-lg">💡</span> 仔細看模擬器與金黃色磁力線！當厚度增加到幾頁時，迴紋針會掉下來？
+                                </p>
+                                <p class="mt-3 pl-4 text-sm text-blue-600 font-bold bg-blue-50 py-1 rounded inline-block">目前測試厚度：<span id="current-page-display">1</span> 頁</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 答題輸入 -->
+                    <div class="bg-amber-50 border-2 border-amber-300 rounded-2xl p-5 shadow-sm">
+                        <label class="font-bold text-amber-900 text-sm block mb-3">請輸入迴紋針掉落時的厚度頁數：</label>
+                        <div class="flex gap-2">
+                            <input type="number" id="answer-thickness" placeholder="請輸入頁數" onkeyup="if(event.key === 'Enter') submitThickness()" class="flex-1 p-3 rounded-xl border border-gray-300 bg-white text-lg font-bold text-center outline-none focus:ring-4 focus:ring-amber-200">
+                            <button onclick="submitThickness()" class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-6 py-3 rounded-xl shadow-md transition active:scale-95 whitespace-nowrap">
+                                送出答案 🏆
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="screen-waiting" class="w-full bg-white rounded-3xl shadow-2xl border-4 border-blue-400 fade-in hidden-screen flex-grow flex flex-col items-center justify-center p-8 text-center">
+            <div class="text-7xl mb-6 animate-pulse">⏳</div>
+            <h2 class="text-4xl font-black text-blue-700 mb-4">任務全數完成！</h2>
+            <p class="text-2xl text-gray-700 mb-8">請等待 <b>測驗Live</b> 後台確認並發送證書給您...</p>
+            <div class="w-16 h-16 border-8 border-gray-200 border-t-blue-500 rounded-full animate-spin"></div>
+        </div>
+
+        <div id="screen-teacher-praise" class="w-full bg-blue-50 rounded-3xl shadow-2xl fade-in hidden-screen flex-grow flex flex-col items-center justify-center p-8 text-center no-print border-4 border-blue-300">
+            <img src="teacher_photo.jpg" onerror="this.src='https://images.unsplash.com/photo-1580894732444-8ecded790047?auto=format&fit=crop&w=400&q=80'" alt="老師給讚" class="w-64 h-64 md:w-72 md:h-72 rounded-full object-cover shadow-2xl mb-8 border-8 border-white animate-bounce">
+            <h2 class="text-4xl md:text-5xl font-black text-blue-700 drop-shadow-sm bg-white px-8 py-3 rounded-full">太棒了！老師給你一個大大的讚！</h2>
+            <p class="text-xl text-gray-500 mt-6 font-bold animate-pulse">即將為您頒發證書...</p>
+        </div>
+
+        <div id="screen-teacher" class="w-full bg-white rounded-3xl shadow-2xl border-4 border-green-500 fade-in hidden-screen flex-grow flex flex-col p-6 overflow-hidden">
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h2 class="text-3xl font-black text-green-700">🧑‍🏫 測驗Live - 學生即時監控與發證後台</h2>
+                </div>
+                <div class="text-right">
+                    <button onclick="goHomeFromTeacher()" class="mr-4 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-1 px-4 rounded-full text-sm">登出返回</button>
+                    <span class="inline-block bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-bold animate-pulse">🔴 即時連線中</span>
+                </div>
+            </div>
+
+            <div class="flex-grow overflow-auto bg-gray-50 rounded-2xl border border-gray-200">
+                <table class="w-full text-left border-collapse">
+                    <thead class="bg-gray-200 sticky top-0 z-10">
+                        <tr>
+                            <th class="p-4 font-bold text-gray-700 border-b">班級座號</th>
+                            <th class="p-4 font-bold text-gray-700 border-b">姓名</th>
+                            <th class="p-4 font-bold text-gray-700 border-b">目前進度</th>
+                            <th class="p-4 font-bold text-gray-700 border-b text-center">發證</th>
+                            <th class="p-4 font-bold text-gray-700 border-b text-center">管理</th>
+                        </tr>
+                    </thead>
+                    <tbody id="student-list-body" class="divide-y divide-gray-200">
+                        <tr><td colspan="5" class="text-center p-8 text-gray-400">目前沒有學生登入</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="screen-certificate" class="w-full bg-[#0a192f] rounded-3xl shadow-2xl fade-in hidden-screen flex-grow flex flex-col items-center justify-center relative overflow-hidden">
+            
+            <button onclick="triggerPrint()" class="no-print absolute top-8 right-8 bg-amber-500 hover:bg-amber-600 text-white font-bold py-4 px-8 rounded-full shadow-2xl flex items-center gap-2 z-[9999] transition-transform hover:scale-105 text-xl border-2 border-amber-200 cursor-pointer">
+                <span>🖨️ 點此列印滿版證書 (A4)</span>
+            </button>
+
+            <!-- 證書內容 -->
+            <div class="cert-inner w-[280mm] h-[190mm] border-[15px] border-[#d97706] outline outline-[4px] outline-[#f59e0b] outline-offset-[-10px] p-10 box-sizing-border flex flex-col items-center justify-center relative overflow-hidden bg-white">
+    
+    <!-- 1. 實體背景圖片：強制塞在底層 (z-0)，瀏覽器列印時絕對不會被吃掉 -->
+    <img src="providence.jpg" onerror="this.style.display='none'" alt="靜宜大學校園背景" class="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none">
+    
+    <!-- 2. 半透明白光遮罩 (z-1)：數值可自行調整，例如 bg-white/65 代表 65% 透明白光 -->
+    <div class="absolute inset-0 bg-white/65 z-1 pointer-events-none"></div>
+
+    <!-- 3. 證書內的所有文字與照片：務必加上 relative z-10 讓它們浮在背景與遮罩的最上方 -->
+    <h2 class="text-5xl md:text-6xl font-black mb-4 tracking-widest text-blue-800 text-center relative z-10" 
+        style="text-shadow: 2px 2px 0px #ffffff, 4px 4px 0px #93c5fd, 6px 6px 0px #3b82f6, 8px 8px 15px rgba(0,0,0,0.4);">
+        靜宜小科學家證書
+    </h2>
+
+    <img id="cert-student-avatar" src="" alt="學生大頭照" class="w-24 h-24 md:w-28 md:h-28 rounded-full object-cover shadow-md mb-3 border-4 border-amber-500 relative z-10">
+    
+    <div class="relative w-56 h-56 md:w-64 md:h-64 mb-4 badge-3d z-10">
+        <img src="crest.png" alt="磁力大師徽章" class="w-full h-full object-contain drop-shadow-[0_20px_30px_rgba(0,0,0,0.6)] bg-transparent">
+    </div>
+
+    <h1 class="text-3xl md:text-4xl font-black text-amber-600 mb-4 tracking-widest drop-shadow-lg text-center relative z-10" style="text-shadow: 2px 2px 0px #b45309, 4px 4px 8px rgba(0,0,0,0.3)">挑戰成功！滿分過關！</h1>
+    
+    <p class="text-xl md:text-2xl text-gray-800 font-bold max-w-4xl leading-relaxed text-center mb-6 relative z-10">
+        恭喜 <span id="cert-class-seat" class="text-black mx-1" style="font-family: 'Kaiti', '標楷體', serif;">三年甲班 1號</span> <span id="cert-name" class="text-black mx-1 font-black" style="font-family: 'Kaiti', '標楷體', serif;">王小明</span> 同學，<br>
+        成功解開磁力只吸<span class="text-red-600 font-black">「鐵製品」</span>、能<span class="text-blue-600 font-black">「隔空」</span>也能<span class="text-green-600 font-black">「隔物」</span>的秘密！
+    </p>
+    
+    <div class="bg-blue-50/95 text-blue-900 px-10 py-2 rounded-full font-black text-xl shadow-inner border-4 border-blue-200 mt-1 relative z-10">
+        「答得太棒了！今天你是100分的小科學家！集滿三級才能成為真正的磁力大師哦。」
+    </div>
+    
+    <!-- 旮毅亞偉老師專屬紅印章 -->
+    <div class="absolute bottom-8 right-12 stamp z-20 shadow-2xl">
+        旮毅<br>亞偉
+    </div>
+</div>
+
+    </main>
+
+    <script>
+        // --- 自定義無違規訊息視窗 ---
+        function showCustomMsg(title, msg, onConfirm) {
+            const container = document.getElementById('custom-modal-container');
+            container.innerHTML = `
+                <div class="custom-modal">
+                    <div class="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl border-4 border-blue-400 text-center fade-in">
+                        <div class="text-5xl mb-3">💡</div>
+                        <h3 class="text-2xl font-black text-blue-800 mb-2">${title}</h3>
+                        <p class="text-gray-700 text-lg mb-6 leading-relaxed">${msg}</p>
+                        <div class="flex justify-center gap-4">
+                            ${onConfirm ? `<button id="modal-cancel" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2.5 px-6 rounded-xl text-lg">取消</button>` : ''}
+                            <button id="modal-ok" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-8 rounded-xl text-lg shadow">確定</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('modal-ok').onclick = () => {
+                container.innerHTML = '';
+                if(onConfirm) onConfirm(true);
+            };
+            if(onConfirm) {
+                document.getElementById('modal-cancel').onclick = () => {
+                    container.innerHTML = '';
+                    onConfirm(false);
+                };
+            }
+        }
+
+        // --- 音效系統 (Web Audio API) ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playSound(type) {
+            if(audioCtx.state === 'suspended') audioCtx.resume();
+            
+            if(type === 'correct') {
+                playNote(523.25, 0, 0.1, 'sine');
+                playNote(659.25, 0.1, 0.2, 'sine');
+            } else if(type === 'wrong') {
+                playNote(200, 0, 0.15, 'sawtooth');
+                playNote(150, 0.15, 0.2, 'sawtooth');
+            } else if(type === 'fanfare') {
+                const t = audioCtx.currentTime;
+                playTone(523.25, t, 0.15);
+                playTone(659.25, t + 0.15, 0.15);
+                playTone(783.99, t + 0.3, 0.15);
+                playTone(1046.50, t + 0.45, 0.6);
+            }
+        }
+
+        function playNote(freq, delay, dur, type) {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.value = freq;
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime + delay);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + delay + dur);
+            osc.start(audioCtx.currentTime + delay);
+            osc.stop(audioCtx.currentTime + delay + dur);
+        }
+
+        function playTone(freq, time, dur) {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.value = freq;
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            gain.gain.setValueAtTime(0.15, time);
+            gain.gain.exponentialRampToValueAtTime(0.01, time + dur);
+            osc.start(time);
+            osc.stop(time + dur);
+        }
+
+        // --- 核心通訊 (BroadcastChannel) ---
+        const bc = new BroadcastChannel('magnet_lab_channel');
+        
+        let currentUser = {
+            id: 'stu_' + Math.random().toString(36).substr(2, 9),
+            role: null,
+            classStr: '三甲', seat: '', name: '',
+            progressStr: '未開始',
+            task1Done: false, task2Done: false,
+            certIssued: false
+        };
+        let studentsData = {};
+
+        bc.onmessage = (event) => {
+            const data = event.data;
+            if (currentUser.role === 'teacher' && data.type === 'student_update') {
+                studentsData[data.student.id] = data.student;
+                renderTeacherTable();
+            } else if (currentUser.role === 'student') {
+                if (data.type === 'teacher_request_sync') broadcastStudentState();
+                if (data.type === 'issue_cert' && data.studentId === currentUser.id) {
+                    currentUser.certIssued = true;
+                    showTeacherPraiseThenCert();
+                }
+            }
+        };
+
+        function broadcastStudentState() {
+            if (currentUser.role === 'student') bc.postMessage({ type: 'student_update', student: currentUser });
+        }
+
+        function loginStudent() {
+            const selectEl = document.getElementById('stu-select');
+            const val = selectEl.value;
+            
+            if (!val) {
+                showCustomMsg('貼心提醒', '請先選擇您的座號與姓名喔！');
+                return;
+            }
+            
+            const [seat, name] = val.split('|');
+            
+            currentUser.role = 'student';
+            currentUser.classStr = '三甲'; 
+            currentUser.seat = seat; 
+            currentUser.name = name;
+            currentUser.progressStr = '閱讀首頁中';
+            
+            const photoFileName = `student_${seat}.png`;
+            document.getElementById('student-avatar').src = photoFileName;
+            document.getElementById('cert-student-avatar').src = photoFileName;
+            
+            document.getElementById('header-user-info').innerText = `三甲 ${seat}號 ${name}`;
+            document.getElementById('main-header').classList.add('hidden');
+            broadcastStudentState();
+            switchScreen('screen-start');
+            showTeacherMsg(`歡迎 ${name} 同學進入實驗室！準備好就點擊開始挑戰！`);
+        }
+
+        function loginTeacher() {
+            currentUser.role = 'teacher';
+            switchScreen('screen-teacher');
+            document.getElementById('main-header').classList.add('hidden');
+            bc.postMessage({ type: 'teacher_request_sync' });
+            renderTeacherTable();
+        }
+
+        function goHomeFromTeacher() {
+            currentUser.role = null;
+            document.getElementById('main-header').classList.remove('hidden');
+            switchScreen('screen-login');
+        }
+
+        function switchScreen(showId) {
+            document.querySelectorAll('main > div').forEach(el => {
+                if(el.id !== 'teacher-dialog') el.classList.add('hidden-screen');
+            });
+            document.getElementById(showId).classList.remove('hidden-screen');
+        }
+
+        function showTeacherMsg(msg, duration = 4000) {
+            if(currentUser.role === 'teacher') return;
+            const dialog = document.getElementById('teacher-dialog');
+            document.getElementById('teacher-text').innerHTML = msg;
+            dialog.classList.remove('hidden-screen', 'hidden');
+            setTimeout(() => dialog.classList.add('hidden-screen'), duration);
+        }
+
+        function renderTeacherTable() {
+            const tbody = document.getElementById('student-list-body');
+            tbody.innerHTML = '';
+            const studentIds = Object.keys(studentsData);
+            if (studentIds.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center p-8 text-gray-400">目前沒有學生登入</td></tr>';
+                return;
+            }
+
+            studentIds.forEach(id => {
+                const s = studentsData[id];
+                const isDone = s.task1Done && s.task2Done;
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="p-4 border-b">${s.classStr} ${s.seat}號</td>
+                    <td class="p-4 border-b font-bold text-blue-700">${s.name}</td>
+                    <td class="p-4 border-b"><span class="px-2 py-1 rounded text-sm ${isDone ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'}">${s.progressStr}</span></td>
+                    <td class="p-4 border-b text-center">
+                        ${s.certIssued ? `<span class="text-gray-400 font-bold">✅ 已發送</span>` : 
+                          `<button onclick="issueCertificate('${s.id}')" class="bg-green-500 hover:bg-green-600 text-white px-4 py-1.5 rounded-lg shadow font-bold disabled:opacity-50 cursor-pointer" ${!isDone ? 'disabled' : ''}>發送證書</button>`}
+                    </td>
+                    <td class="p-4 border-b text-center">
+                        <button onclick="deleteStudent('${s.id}')" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg shadow font-bold cursor-pointer">刪除</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function issueCertificate(studentId) {
+            studentsData[studentId].certIssued = true;
+            renderTeacherTable();
+            bc.postMessage({ type: 'issue_cert', studentId: studentId });
+            
+            showCustomMsg("發送成功", "已發送證書給學生！\n老師是否要切換畫面「預覽」該學生的過場動畫與證書？", (confirmed) => {
+                if(confirmed) {
+                    document.getElementById('cert-class-seat').innerText = `${studentsData[studentId].classStr} ${studentsData[studentId].seat}號`;
+                    document.getElementById('cert-name').innerText = studentsData[studentId].name;
+                    
+                    switchScreen('screen-teacher-praise');
+                    playSound('correct'); 
+                    
+                    try {
+                        let audio = new Audio('teacher_audio.mp3');
+                        audio.play().catch(e => console.log('語音播放失敗', e));
+                    } catch(e) {}
+                    
+                    setTimeout(() => {
+                        switchScreen('screen-certificate');
+                        playSound('fanfare'); 
+                    }, 5000);
+                }
+            });
+        }
+
+        function deleteStudent(studentId) {
+            showCustomMsg("確認刪除", "確定要刪除這位學生的紀錄嗎？", (confirmed) => {
+                if(confirmed) {
+                    delete studentsData[studentId];
+                    renderTeacherTable();
+                }
+            });
+        }
+
+        const baseMaterials = [
+            { name: '鐵製迴紋針', image: 'clip.jpg', isIron: true },
+            { name: '鐵製長尾夾', image: 'Binder clip.jpg', isIron: true },
+            { name: '鐵罐', image: 'Tin can.png', isIron: true },
+            { name: '鋼鐵人', image: 'Iron man.jpg', isIron: true },
+            { name: '鋁罐', image: 'Al cans.png', isIron: false, hint: '鋁罐是鋁做的，不是鐵喔！' },
+            { name: '鉛筆', image: 'pen.jpg', isIron: false, hint: '鉛筆是木頭做的，沒有鐵！' },
+            { name: '橡皮擦', image: 'Eraser.jpg', isIron: false, hint: '橡皮擦是塑膠或橡膠做的！' },
+            { name: '朵朵喵', image: 'totomyaw.jpg', isIron: false, hint: '朵朵喵是旮帥的寶貝哦！' },
+            { name: '錢幣', image: 'coin.jpg', isIron: false, hint: '硬幣通常是銅或鎳合金，沒有鐵！' }
+        ];
+
+        let currentMaterials = [];
+        let currentMaterialIndex = 0;
+
+        function startGame() {
+            const irons = baseMaterials.filter(m => m.isIron).sort(() => Math.random() - 0.5);
+            const nonIrons = baseMaterials.filter(m => !m.isIron).sort(() => Math.random() - 0.5);
+            currentMaterials = [];
+            const maxLen = Math.max(irons.length, nonIrons.length);
+            for (let i = 0; i < maxLen; i++) {
+                if (Math.random() > 0.5) {
+                    if (irons[i]) currentMaterials.push(irons[i]);
+                    if (nonIrons[i]) currentMaterials.push(nonIrons[i]);
+                } else {
+                    if (nonIrons[i]) currentMaterials.push(nonIrons[i]);
+                    if (irons[i]) currentMaterials.push(irons[i]);
+                }
+            }
+            currentMaterialIndex = 0;
+            switchScreen('screen-task1');
+            currentUser.progressStr = '第一關進行中';
+            broadcastStudentState();
+            showTeacherMsg("仔細觀察圖片！有沒有含鐵？不要被騙囉！");
+            updateTask1UI();
+        }
+
+        function updateTask1UI() {
+            if (currentMaterialIndex < currentMaterials.length) {
+                const item = currentMaterials[currentMaterialIndex];
+                document.getElementById('item-image').src = item.image;
+                document.getElementById('item-name').innerText = item.name;
+                document.getElementById('task1-progress').style.width = `${(currentMaterialIndex / currentMaterials.length) * 100}%`;
+                
+                const box = document.getElementById('current-item-box');
+                box.style.transform = 'scale(0.9)';
+                setTimeout(() => box.style.transform = 'scale(1)', 50);
+            } else {
+                document.getElementById('task1-progress').style.width = '100%';
+                currentUser.task1Done = true;
+                currentUser.progressStr = '進入第二關';
+                broadcastStudentState();
+                setTimeout(() => {
+                    switchScreen('screen-task2');
+                    showTeacherMsg("太棒了！接下來，拖拉滑桿觀察磁力穿透與金黃色磁力線的變化！", 5000);
+                }, 1000);
+            }
+        }
+
+        function checkMaterial(userAnswerIsIron) {
+            const item = currentMaterials[currentMaterialIndex];
+            const box = document.getElementById('current-item-box');
+            
+            if (userAnswerIsIron === item.isIron) {
+                playSound('correct');
+                showTeacherMsg(`答對了！${item.name}${item.isIron ? '是鐵製品！' : '不是鐵製品！'}`, 1500);
+                box.style.borderColor = '#22c55e';
+                setTimeout(() => {
+                    box.style.borderColor = '#fb923c';
+                    currentMaterialIndex++;
+                    updateTask1UI();
+                }, 600);
+            } else {
+                playSound('wrong');
+                box.style.transform = 'translateX(-10px)';
+                setTimeout(() => box.style.transform = 'translateX(10px)', 100);
+                setTimeout(() => box.style.transform = 'translateX(0)', 200);
+                showTeacherMsg(item.hint ? `哎呀！${item.hint}` : '再仔細想想看喔！', 2500);
+            }
+        }
+
+        function updateSim() {
+            const rawVal = parseInt(document.getElementById('thickness-slider').value);
+            const pages = rawVal;
+            document.getElementById('current-page-display').innerText = pages;
+            
+            const height = Math.max(4, pages * 1.5);
+            document.getElementById('sim-paper').style.height = `${height}px`;
+            
+            const clips = document.getElementById('sim-clips');
+            const clip1 = document.getElementById('clip1');
+            const clip2 = document.getElementById('clip2');
+            
+            const magLines = document.querySelectorAll('.magnetic-line');
+            let lineOpacity = 0;
+            if (pages <= 35) {
+                lineOpacity = Math.max(0.05, 1 - ((pages - 1) / 35));
+            } else {
+                lineOpacity = 0;
+            }
+            magLines.forEach(line => {
+                line.style.opacity = lineOpacity;
+            });
+            
+            if (pages <= 35) {
+                // 讓迴紋針隨著紙張厚度（height）向下延伸，保持在紙張下方
+                clips.style.top = `${75 + height}px`;
+                clips.style.opacity = '0.95';
+                clip1.style.transform = 'rotate(-45deg)';
+                clip2.style.transform = 'rotate(12deg)';
+            } else {
+                clips.style.top = '270px';
+                clips.style.opacity = '0.3';
+                clip1.style.transform = 'rotate(-75deg) translate(-15px, 25px)';
+                clip2.style.transform = 'rotate(85deg) translate(15px, 15px)';
+            }
+        }
+
+        function submitThickness() {
+            const ans = parseInt(document.getElementById('answer-thickness').value);
+            if(isNaN(ans)) {
+                showCustomMsg('提示', '請輸入有效的數字頁數！');
+                return;
+            }
+            if (ans >= 36 && ans <= 40) {
+                playSound('correct');
+                currentUser.task2Done = true;
+                currentUser.progressStr = '任務全完成(等待發證)';
+                broadcastStudentState();
+                
+                showTeacherMsg("完全正確！厚度達到 36-40頁以上，磁力線消失且磁力不足以吸住迴紋針了！", 3000);
+                setTimeout(() => {
+                    switchScreen('screen-waiting');
+                }, 2000);
+            } else {
+                playSound('wrong');
+                showTeacherMsg("不對喔！請用右側滑桿慢慢拖拉，觀察迴紋針在哪一頁掉落。", 3000);
+            }
+        }
+
+        function showTeacherPraiseThenCert() {
+            document.getElementById('cert-class-seat').innerText = `${currentUser.classStr} ${currentUser.seat}號`;
+            document.getElementById('cert-name').innerText = currentUser.name;
+            
+            switchScreen('screen-teacher-praise');
+            playSound('correct'); 
+            
+            try {
+                let audio = new Audio('teacher_audio.mp3');
+                audio.play().catch(e => console.log('語音播放失敗', e));
+            } catch(e) {}
+            
+            setTimeout(() => {
+                switchScreen('screen-certificate');
+                playSound('fanfare'); 
+            }, 5000);
+        }
+
+        function triggerPrint() {
+            setTimeout(() => {
+                window.print();
+            }, 200);
+        }
+    </script>
+</body>
+</html>
