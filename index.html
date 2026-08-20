@@ -132,9 +132,8 @@
                 outline-offset: -8px !important;
                 padding: 30px !important;
                 box-sizing: border-box !important;
-                background-image: linear-gradient(rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.65)), url('providence.jpg') !important;
-                background-size: cover !important;
-                background-position: center !important;
+                background-color: white !important;
+                /* 👆 已經將容易被擋掉的 CSS 背景圖刪除，全靠下方的實體圖片 */
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
                 display: flex !important;
@@ -410,17 +409,18 @@
 
             <!-- 證書內容 -->
             <div class="cert-inner w-[280mm] h-[190mm] border-[15px] border-[#d97706] outline outline-[4px] outline-[#f59e0b] outline-offset-[-10px] p-10 box-sizing-border flex flex-col items-center justify-center relative overflow-hidden bg-white">
-    
-    <!-- 1. 實體背景圖片：強制塞在底層 (z-0)，瀏覽器列印時絕對不會被吃掉 -->
-    <img src="providence.jpg" onerror="this.style.display='none'" alt="靜宜大學校園背景" class="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none">
-    
-    <!-- 2. 半透明白光遮罩 (z-1)：數值可自行調整，例如 bg-white/65 代表 65% 透明白光 -->
-    <div class="absolute inset-0 bg-white/65 z-1 pointer-events-none"></div>
+                
+                <!-- 1. 實體背景圖片 (拿掉隱藏語法，並加上強制保險 style) -->
+                <!-- 💡 如果修改後畫面上出現「破圖」圖示，代表您的圖片檔名大小寫不對（請檢查是不是大寫的 .JPG） -->
+                <img src="providence.jpg" alt="靜宜大學校園背景" class="absolute inset-0 w-full h-full object-cover pointer-events-none" style="position: absolute !important; width: 100% !important; height: 100% !important; z-index: 0 !important;">
+                
+                <!-- 2. 半透明白光遮罩 (改用強制 style 寫法，確保列印時絕對存在) -->
+                <div class="absolute inset-0 pointer-events-none" style="position: absolute !important; inset: 0 !important; background-color: rgba(255, 255, 255, 0.65) !important; z-index: 5 !important;"></div>
 
-    <!-- 3. 證書內的所有文字與照片：務必加上 relative z-10 讓它們浮在背景與遮罩的最上方 -->
-    <h2 class="text-5xl md:text-6xl font-black mb-4 tracking-widest text-blue-800 text-center relative z-10" 
-        style="text-shadow: 2px 2px 0px #ffffff, 4px 4px 0px #93c5fd, 6px 6px 0px #3b82f6, 8px 8px 15px rgba(0,0,0,0.4);">
-        靜宜小科學家證書
+                <!-- 3. 證書標題 (把 z-10 改成 style 強制浮在最上方) -->
+                <h2 class="text-5xl md:text-6xl font-black mb-4 tracking-widest text-blue-800 text-center relative" 
+                    style="z-index: 10 !important; text-shadow: 2px 2px 0px #ffffff, 4px 4px 0px #93c5fd, 6px 6px 0px #3b82f6, 8px 8px 15px rgba(0,0,0,0.4);">
+                    靜宜小科學家證書
     </h2>
 
     <img id="cert-student-avatar" src="" alt="學生大頭照" class="w-24 h-24 md:w-28 md:h-28 rounded-full object-cover shadow-md mb-3 border-4 border-amber-500 relative z-10">
